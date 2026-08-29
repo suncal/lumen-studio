@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>API — LUMEN Studio</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>◑</text></svg>">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+
+<nav><div class="wrap">
+  <a class="wordmark" href="index.html">LUMEN<span>◑</span>STUDIO</a>
+  <a class="link" href="gallery.html">Gallery</a>
+  <a class="link" href="pricing.html">Pricing</a>
+  <a class="link on" href="api.html">API</a>
+  <div class="spacer"></div>
+  <a class="btn" href="studio.html">Open Studio</a>
+</div></nav>
+
+<section><div class="wrap">
+  <p class="eyebrow">Developers</p>
+  <h1>One POST in, one image out</h1>
+  <p class="sub">Everything the Studio does is available over HTTP. Async by design: submit a job, poll it, fetch the image. Creator and Pro keys include API access.</p>
+
+  <h2>Authentication</h2>
+  <p class="sub" style="margin-bottom:10px">Send your key on every request:</p>
+  <pre class="code">x-api-key: <b>lum_your_key_here</b></pre>
+
+  <h2>Generate</h2>
+  <pre class="code">curl -X POST <b>$LUMEN_API</b>/generate \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: lum_..." \
+  -d '{
+    "prompt": "a lighthouse in a storm, oil painting",
+    "mode": "quick",          <b># "quick" (1 credit) or "full" (2 credits)</b>
+    "final_size": 1024,       <b># longest edge in px</b>
+    "aspect": "16:9"          <b># optional: 1:1, 4:3, 3:4, 16:9, 9:16</b>
+  }'
+
+<b># -> 202</b> { "job_id": "abc123", "status": "queued", "credits": 199 }</pre>
+
+  <h2>Poll &amp; fetch</h2>
+  <pre class="code">curl <b>$LUMEN_API</b>/jobs/abc123 -H "x-api-key: lum_..."
+<b># -> </b>{ "status": "running", "log": ["in_progress"] }
+<b># -> </b>{ "status": "done", "image_url": ".../jobs/abc123/image" }
+
+curl <b>$LUMEN_API</b>/jobs/abc123/image -o out.png</pre>
+
+  <h2>Endpoints</h2>
+  <table class="doc">
+    <tr><th>Endpoint</th><th>Method</th><th>What it does</th></tr>
+    <tr><td>/generate</td><td>POST</td><td>Queue a generation. Returns <code class="inline">job_id</code> and your remaining credits.</td></tr>
+    <tr><td>/jobs/:id</td><td>GET</td><td>Job status: <code class="inline">queued → running → done | error</code>, with a progress log.</td></tr>
+    <tr><td>/jobs/:id/image</td><td>GET</td><td>The finished image (PNG/JPEG bytes).</td></tr>
+    <tr><td>/credits</td><td>GET</td><td>Remaining credits for your key.</td></tr>
+    <tr><td>/health</td><td>GET</td><td>Engine status.</td></tr>
+  </table>
+
+  <h2>Notes</h2>
+  <table class="doc">
+    <tr><th>Topic</th><th></th><th>Detail</th></tr>
+    <tr><td>Prompting</td><td></td><td>Describe what should be present — negative prompts are not supported. Put sign/label text in quotes; the engine renders real, legible text.</td></tr>
+    <tr><td>Timing</td><td></td><td>Draft images typically land in seconds to a couple of minutes depending on engine load; Studio images take longer because of the multi-stage pipeline. Poll every few seconds.</td></tr>
+    <tr><td>Job retention</td><td></td><td>Fetch your image promptly — job records expire 24 hours after completion.</td></tr>
+    <tr><td>Errors</td><td></td><td><code class="inline">401</code> bad key · <code class="inline">402</code> out of credits · <code class="inline">502</code> engine error (you are not charged for failed jobs on poll-time errors).</td></tr>
+  </table>
+
+  <p style="margin-top:26px"><a class="btn big" href="pricing.html">Get an API key</a></p>
+</div></section>
+
+<footer><div class="wrap">
+  <span>© 2026 LUMEN Studio</span>
+  <a href="terms.html">Terms</a>
+  <a href="privacy.html">Privacy</a>
+</div></footer>
+
+</body>
+</html>

@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LUMEN Studio — AI images with a director built in</title>
+<meta name="description" content="LUMEN plans your shot, renders multiple candidates, judges them with a vision model, and repairs defects. Frontier-quality AI images from 4.5¢ each.">
+<meta property="og:title" content="LUMEN Studio">
+<meta property="og:description" content="Most AI image tools take one shot. LUMEN directs the whole scene.">
+<meta property="og:image" content="assets/ramen.jpg">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>◑</text></svg>">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="site.css">
+<style>
+  /* ambient ground */
+  .hero {
+    padding: 92px 0 70px; position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: ""; position: absolute; inset: -40% -20% auto;
+    height: 130%; pointer-events: none;
+    background: radial-gradient(ellipse 55% 45% at 26% 30%, rgba(69,191,174,.14), transparent 60%),
+                radial-gradient(ellipse 40% 35% at 80% 60%, rgba(223,160,80,.07), transparent 65%);
+  }
+  .hero-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 48px; align-items: center; position: relative; }
+  @media (max-width: 900px) { .hero-grid { grid-template-columns: 1fr; } }
+  .hero-ctas { display: flex; gap: 12px; flex-wrap: wrap; }
+  .collage { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .collage img {
+    width: 100%; border-radius: 14px; border: 1px solid var(--line); display: block;
+    box-shadow: 0 18px 50px rgba(0,0,0,.45);
+    transition: transform .45s cubic-bezier(.2,.8,.2,1);
+  }
+  .collage img:hover { transform: scale(1.035) rotate(0deg) !important; }
+  .collage img:nth-child(1) { transform: rotate(-1.4deg); }
+  .collage img:nth-child(2) { transform: rotate(1.6deg) translateY(16px); }
+  .collage img:nth-child(3) { transform: rotate(1deg); }
+  .collage img:nth-child(4) { transform: rotate(-1.2deg) translateY(16px); }
+  .proof { font-family: var(--mono); font-size: 11.5px; letter-spacing: .08em; color: var(--ink-3); text-transform: uppercase; margin-top: 16px; }
+
+  /* marquee of renders */
+  .marquee { overflow: hidden; border-block: 1px solid var(--line); padding: 18px 0; background: var(--panel); }
+  .marquee-track { display: flex; gap: 14px; width: max-content; animation: slide 46s linear infinite; }
+  .marquee:hover .marquee-track { animation-play-state: paused; }
+  .marquee img { height: 150px; border-radius: 10px; border: 1px solid var(--line); }
+  @keyframes slide { to { transform: translateX(-50%); } }
+  @media (prefers-reduced-motion: reduce) { .marquee-track { animation: none; } }
+
+  /* pipeline */
+  .pipeline { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; counter-reset: st; }
+  @media (max-width: 860px) { .pipeline { grid-template-columns: 1fr 1fr; } }
+  .stage-card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 22px; transition: transform .3s ease, border-color .3s ease;
+  }
+  .stage-card:hover { transform: translateY(-4px); border-color: var(--accent); }
+  .stage-card::before {
+    counter-increment: st; content: "0" counter(st);
+    font-family: var(--mono); font-size: 20px; font-weight: 700; color: var(--accent); display: block; margin-bottom: 8px;
+  }
+  .stage-card p { font-size: 13.5px; color: var(--ink-2); margin: 4px 0 0; }
+
+  /* use cases */
+  .uses { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 860px) { .uses { grid-template-columns: 1fr; } }
+  .use {
+    position: relative; border-radius: var(--radius); overflow: hidden;
+    border: 1px solid var(--line); background: var(--panel);
+    transition: transform .35s ease;
+  }
+  .use:hover { transform: translateY(-5px); }
+  .use img { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; }
+  .use .u-label {
+    position: absolute; left: 12px; bottom: 12px; right: 12px;
+    display: flex; align-items: baseline; justify-content: space-between; gap: 8px;
+    background: rgba(13,18,17,.82); backdrop-filter: blur(6px);
+    border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px;
+  }
+  .use .u-label b { font-family: var(--display); font-size: 14.5px; }
+  .use .u-label span { font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); white-space: nowrap; }
+
+  .card { transition: transform .3s ease, border-color .3s ease; }
+  .card:hover { transform: translateY(-3px); border-color: #2f3d3a; }
+  .price-card.pop:hover { border-color: var(--accent); }
+
+  /* closing cta */
+  .closing { text-align: center; padding: 90px 0; position: relative; overflow: hidden; }
+  .closing::before {
+    content: ""; position: absolute; inset: auto -20% -60%; height: 120%; pointer-events: none;
+    background: radial-gradient(ellipse 50% 50% at 50% 100%, rgba(69,191,174,.13), transparent 65%);
+  }
+  .closing > * { position: relative; }
+</style>
+</head>
+<body>
+
+<nav><div class="wrap">
+  <a class="wordmark" href="index.html">LUMEN<span>◑</span>STUDIO</a>
+  <a class="link" href="gallery.html">Gallery</a>
+  <a class="link" href="pricing.html">Pricing</a>
+  <a class="link" href="api.html">API</a>
+  <div class="spacer"></div>
+  <a class="btn" href="studio.html">Open Studio</a>
+</div></nav>
+
+<header class="hero"><div class="wrap hero-grid">
+  <div>
+    <p class="eyebrow">Text-to-image, directed</p>
+    <h1>Most AI image tools take one shot. LUMEN directs the whole scene.</h1>
+    <p class="sub">LUMEN plans your prompt like a cinematographer, renders multiple candidates, judges every one with a vision model, and repairs what's wrong — so the image you get is the best take, not the first take.</p>
+    <div class="hero-ctas">
+      <a class="btn big" href="studio.html">Start creating</a>
+      <a class="btn big ghost" href="pricing.html">Packs from $9</a>
+    </div>
+    <p class="proof">Every image on this site is unedited LUMEN output</p>
+  </div>
+  <div class="collage">
+    <img src="assets/ramen.jpg" alt="Rainy Tokyo ramen shop with a sign reading RAMEN">
+    <img src="assets/portrait.jpg" alt="Editorial portrait of a woman with silver hair">
+    <img src="assets/espresso.jpg" alt="Vintage espresso machine in morning light">
+    <img src="assets/warrior.jpg" alt="Fantasy warrior with a greatsword">
+  </div>
+</div></header>
+
+<div class="marquee" aria-hidden="true"><div class="marquee-track" id="mq">
+  <img src="assets/ramen.jpg" alt=""><img src="assets/portrait.jpg" alt="">
+  <img src="assets/cyberpunk.jpg" alt=""><img src="assets/espresso.jpg" alt="">
+  <img src="assets/warrior.jpg" alt=""><img src="assets/retriever.jpg" alt="">
+  <img src="assets/apple.jpg" alt="">
+</div></div>
+
+<section><div class="wrap">
+  <p class="eyebrow">Made for work that sells</p>
+  <h2>Not just pretty pictures — production assets</h2>
+  <p class="sub">Product pages, menus, listings, ads, covers, brand shots. Give LUMEN the brief; it gives you the deliverable — including signs and labels with real, correctly spelled text.</p>
+  <div class="uses">
+    <div class="use"><img src="assets/sneaker.jpg" alt=""><div class="u-label"><b>E‑commerce heroes</b><span>product</span></div></div>
+    <div class="use"><img src="assets/burger.jpg" alt=""><div class="u-label"><b>Menus that sell</b><span>food</span></div></div>
+    <div class="use"><img src="assets/interior.jpg" alt=""><div class="u-label"><b>Listing photography</b><span>real estate</span></div></div>
+    <div class="use"><img src="assets/serum.jpg" alt=""><div class="u-label"><b>Ad creative</b><span>beauty</span></div></div>
+    <div class="use"><img src="assets/cover.jpg" alt=""><div class="u-label"><b>Covers &amp; posters</b><span>publishing</span></div></div>
+    <div class="use"><img src="assets/storefront.jpg" alt=""><div class="u-label"><b>Brand scenes with real text</b><span>branding</span></div></div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <p class="eyebrow">The pipeline</p>
+  <h2>Four stages between your prompt and your image</h2>
+  <p class="sub">The same system design frontier labs use — planning, search, judging, repair — running on every Studio-mode generation.</p>
+  <div class="pipeline">
+    <div class="stage-card"><h3>Plan</h3><p>A language model expands your prompt into a full scene spec — composition, lighting, palette — plus a checklist the image must satisfy.</p></div>
+    <div class="stage-card"><h3>Search</h3><p>Multiple candidates are rendered from different interpretations, because the best image is rarely the first draw.</p></div>
+    <div class="stage-card"><h3>Judge</h3><p>A vision model scores every candidate against the checklist — fidelity first, aesthetics second — and picks the winner.</p></div>
+    <div class="stage-card"><h3>Repair</h3><p>Remaining defects are named, fixed with a refinement pass, and re-judged. Only the better result ships.</p></div>
+  </div>
+</div></section>
+
+<section class="tight"><div class="wrap">
+  <div class="grid c3">
+    <div class="card"><h3>Text that spells</h3><p>Signs, labels, packaging — put the words in quotes and they render correctly. Most generators still can't.</p></div>
+    <div class="card"><h3>Two speeds</h3><p>Draft mode for fast iteration at 1 credit. Studio mode for finals — the full four-stage pipeline — at 2.</p></div>
+    <div class="card"><h3>Every format</h3><p>Square, portrait, landscape, 16:9, 9:16 — pick the canvas your project needs, up to full resolution.</p></div>
+    <div class="card"><h3>Credits, not subscriptions</h3><p>Buy a pack, use it whenever. Credits never expire and there's no monthly bill waiting for you.</p></div>
+    <div class="card"><h3>An API from day one</h3><p>Everything the Studio does is one POST request away. Build LUMEN into your own product or workflow.</p></div>
+    <div class="card"><h3>It learns your taste</h3><p>Every judged generation teaches the engine what you prefer — quality compounds the more you use it.</p></div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <p class="eyebrow">Pricing</p>
+  <h2>Pay for images, not for months</h2>
+  <p class="sub">Draft images cost 1 credit, Studio images 2. Packs start at $9 — that's 4.5¢ a draft. Keys are issued automatically the moment you buy.</p>
+  <div class="grid c3" id="packs">
+    <div class="card price-card">
+      <h3>Spark</h3><div class="amount">$9 <small>· 200 credits</small></div>
+      <ul><li><b>200</b> drafts or <b>100</b> studio images</li><li>Full Studio access</li><li>Credits never expire</li></ul>
+      <a class="btn ghost" data-pay="spark" href="pricing.html">Get Spark</a>
+    </div>
+    <div class="card price-card pop">
+      <span class="pop-tag">Most popular</span>
+      <h3>Creator</h3><div class="amount">$29 <small>· 800 credits</small></div>
+      <ul><li><b>800</b> drafts or <b>400</b> studio images</li><li>Full Studio + API access</li><li>Credits never expire</li></ul>
+      <a class="btn" data-pay="creator" href="pricing.html">Get Creator</a>
+    </div>
+    <div class="card price-card">
+      <h3>Pro</h3><div class="amount">$79 <small>· 2,500 credits</small></div>
+      <ul><li><b>2,500</b> drafts or <b>1,250</b> studio images</li><li>Full Studio + API access</li><li>Priority queue</li></ul>
+      <a class="btn ghost" data-pay="pro" href="pricing.html">Get Pro</a>
+    </div>
+  </div>
+</div></section>
+
+<section class="closing"><div class="wrap">
+  <h2>Your next image is 60 seconds away</h2>
+  <p class="sub" style="margin-inline:auto">Open the Studio, write one sentence, and watch the pipeline work.</p>
+  <a class="btn big" href="studio.html">Open LUMEN Studio</a>
+</div></section>
+
+<footer><div class="wrap">
+  <span>© 2026 LUMEN Studio</span>
+  <a href="terms.html">Terms</a>
+  <a href="privacy.html">Privacy</a>
+  <a href="api.html">API docs</a>
+  <a href="success.html">Claim a key</a>
+  <span class="spacer" style="flex:1"></span>
+  <span>Images on this site are unedited LUMEN output.</span>
+</div></footer>
+
+<script src="config.js"></script>
+<script>
+  document.querySelectorAll("[data-pay]").forEach(a => {
+    const link = (window.LUMEN_CONFIG.PAY || {})[a.dataset.pay];
+    if (link && link !== "#") a.href = link;
+  });
+  // marquee needs its content doubled for a seamless loop
+  const mq = document.getElementById("mq");
+  mq.innerHTML += mq.innerHTML;
+</script>
+</body>
+</html>

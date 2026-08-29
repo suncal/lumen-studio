@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LUMEN Studio</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>◑</text></svg>">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg: #0d1211; --panel: #131a18; --panel-2: #1a2321; --line: #263230;
+    --ink: #e8eeec; --ink-2: #9fb0ab; --ink-3: #64756f;
+    --accent: #45bfae; --accent-ink: #0d1211; --amber: #dfa050; --red: #e07a6a;
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: "Instrument Sans", system-ui, sans-serif; font-size: 15px;
+    display: flex; flex-direction: column;
+  }
+  header {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 22px; border-bottom: 1px solid var(--line); flex-shrink: 0;
+  }
+  .wordmark { font-family: "Archivo", sans-serif; font-weight: 800; font-size: 19px; letter-spacing: .04em; }
+  .wordmark span { color: var(--accent); }
+  .status { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--ink-2); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red); }
+  .dot.ok { background: var(--accent); box-shadow: 0 0 8px rgba(69,191,174,.6); }
+  .spacer { flex: 1; }
+  .pill {
+    font-family: "JetBrains Mono", monospace; font-size: 11.5px; letter-spacing: .06em;
+    padding: 5px 12px; border-radius: 999px; border: 1px solid var(--line); color: var(--ink-2);
+  }
+  .pill b { color: var(--accent); font-weight: 500; }
+
+  main { flex: 1; display: flex; min-height: 0; }
+  .create {
+    width: 340px; flex-shrink: 0; border-right: 1px solid var(--line);
+    padding: 22px; display: flex; flex-direction: column; gap: 18px; overflow-y: auto;
+  }
+  label.sect {
+    font-family: "JetBrains Mono", monospace; font-size: 10.5px; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--ink-3); display: block; margin-bottom: 8px;
+  }
+  textarea {
+    width: 100%; min-height: 120px; resize: vertical;
+    background: var(--panel); color: var(--ink); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 12px 14px; font: inherit; line-height: 1.5;
+  }
+  textarea:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+  .seg { display: flex; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 3px; }
+  .seg button {
+    flex: 1; border: 0; background: transparent; color: var(--ink-2); font: inherit;
+    font-weight: 500; padding: 8px 0; border-radius: 8px; cursor: pointer;
+  }
+  .seg button.on { background: var(--accent); color: var(--accent-ink); font-weight: 600; }
+  .seg-hint { font-size: 12px; color: var(--ink-3); margin-top: 7px; line-height: 1.45; }
+  .chips { display: flex; flex-wrap: wrap; gap: 7px; }
+  .chips button {
+    font-family: "JetBrains Mono", monospace; font-size: 12px; cursor: pointer;
+    background: var(--panel); color: var(--ink-2); border: 1px solid var(--line);
+    border-radius: 8px; padding: 7px 11px;
+  }
+  .chips button.on { border-color: var(--accent); color: var(--accent); }
+  .go {
+    margin-top: 4px; padding: 14px; border: 0; border-radius: var(--radius); cursor: pointer;
+    font-family: "Archivo", sans-serif; font-weight: 800; font-size: 15px; letter-spacing: .03em;
+    background: var(--accent); color: var(--accent-ink);
+  }
+  .go:disabled { opacity: .45; cursor: default; }
+  .foot { margin-top: auto; font-size: 12px; color: var(--ink-3); line-height: 1.5; }
+
+  .gallery { flex: 1; overflow-y: auto; padding: 22px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+  .card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+    overflow: hidden; cursor: pointer; position: relative;
+  }
+  .card img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; background: var(--panel-2); }
+  .card .cap { padding: 9px 12px; font-size: 12.5px; color: var(--ink-2);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .card .badge {
+    position: absolute; top: 10px; left: 10px; font-family: "JetBrains Mono", monospace;
+    font-size: 10px; letter-spacing: .08em; text-transform: uppercase;
+    background: rgba(13,18,17,.82); color: var(--accent); padding: 3px 8px; border-radius: 6px;
+  }
+  .working {
+    aspect-ratio: 1; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 12px; padding: 18px; text-align: center;
+  }
+  .spin {
+    width: 30px; height: 30px; border-radius: 50%;
+    border: 3px solid var(--line); border-top-color: var(--accent);
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .working .stage { font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--ink-2); line-height: 1.5; }
+  .empty { color: var(--ink-3); text-align: center; margin-top: 12vh; font-size: 15px; line-height: 1.7; }
+  .empty b { color: var(--ink-2); }
+
+  dialog {
+    background: var(--panel); color: var(--ink); border: 1px solid var(--line);
+    border-radius: 14px; padding: 0; max-width: min(92vw, 1000px); max-height: 92vh;
+  }
+  dialog::backdrop { background: rgba(5,8,7,.75); }
+  .lb { display: flex; flex-direction: column; max-height: 92vh; }
+  .lb img { max-width: 100%; max-height: 68vh; object-fit: contain; background: #000; }
+  .lb .meta { padding: 16px 20px; display: flex; gap: 14px; align-items: flex-start; }
+  .lb .meta p { margin: 0; flex: 1; font-size: 13.5px; color: var(--ink-2); line-height: 1.5; }
+  .lb .meta a, .lb .meta button {
+    font: inherit; font-size: 13px; cursor: pointer; text-decoration: none; white-space: nowrap;
+    background: var(--panel-2); color: var(--accent); border: 1px solid var(--line);
+    border-radius: 8px; padding: 8px 14px;
+  }
+  @media (max-width: 760px) {
+    main { flex-direction: column; }
+    .create { width: auto; border-right: 0; border-bottom: 1px solid var(--line); }
+  }
+</style>
+</head>
+<body>
+<header>
+  <a class="wordmark" href="index.html" style="text-decoration:none;color:inherit">LUMEN<span>◑</span>STUDIO</a>
+  <div class="status"><div class="dot" id="dot"></div><span id="statusText">connecting…</span></div>
+  <div class="spacer"></div>
+  <div class="pill" id="creditsPill">engine: <b>own hardware · $0/image</b></div>
+</header>
+
+<main>
+  <aside class="create">
+    <div>
+      <label class="sect" for="prompt">Prompt</label>
+      <textarea id="prompt" placeholder="Describe the image. Put any sign or label text in quotes — the engine renders real text."></textarea>
+    </div>
+    <div>
+      <label class="sect">Mode</label>
+      <div class="seg" id="modeSeg">
+        <button data-mode="quick" class="on">Draft</button>
+        <button data-mode="full">Studio</button>
+      </div>
+      <div class="seg-hint" id="modeHint">Draft: one direct render, ~3–5 min.</div>
+    </div>
+    <div>
+      <label class="sect">Aspect</label>
+      <div class="chips" id="aspectChips">
+        <button data-a="" class="on">1:1</button>
+        <button data-a="4:3">4:3</button>
+        <button data-a="3:4">3:4</button>
+        <button data-a="16:9">16:9</button>
+        <button data-a="9:16">9:16</button>
+      </div>
+    </div>
+    <div>
+      <label class="sect">Resolution</label>
+      <div class="chips" id="sizeChips">
+        <button data-s="768">768</button>
+        <button data-s="1024" class="on">1024</button>
+      </div>
+    </div>
+    <button class="go" id="go">Generate</button>
+    <div class="foot">Jobs run one at a time on the engine. Studio mode plans the shot, renders 4 candidates, judges them with a vision model, and repairs defects — it also teaches the engine your taste.</div>
+  </aside>
+
+  <section class="gallery">
+    <div class="empty" id="empty"><b>Nothing here yet.</b><br>Write a prompt and hit Generate — your images appear here.</div>
+    <div class="grid" id="grid"></div>
+  </section>
+</main>
+
+<dialog id="lightbox">
+  <div class="lb">
+    <img id="lbImg" alt="">
+    <div class="meta">
+      <p id="lbPrompt"></p>
+      <a id="lbDownload" download="lumen.png">Download</a>
+      <a id="lbReport" target="_blank" style="display:none">Judge report</a>
+      <button onclick="lightbox.close()">Close</button>
+    </div>
+  </div>
+</dialog>
+
+<script src="config.js"></script>
+<script>
+// Cloud handoff: open studio with ?api=https://your-worker.workers.dev&key=lum_xxx
+// once, and it sticks. Without params: config.js CLOUD_API, else local engine (same origin).
+const qs = new URLSearchParams(location.search);
+if (qs.get("api")) localStorage.setItem("LUMEN_API", qs.get("api"));
+if (qs.get("key")) localStorage.setItem("LUMEN_KEY", qs.get("key"));
+const CFG = window.LUMEN_CONFIG || {};
+const API = localStorage.getItem("LUMEN_API") || CFG.CLOUD_API || location.origin;
+const KEY = localStorage.getItem("LUMEN_KEY") || "";
+if (CFG.CLOUD_API && !KEY) {
+  document.addEventListener("DOMContentLoaded", () => {
+    const pill = document.getElementById("creditsPill");
+    pill.innerHTML = '<a href="#" id="trialLink" style="color:var(--accent);text-decoration:none">start free — 10 images →</a>';
+    document.getElementById("trialLink").addEventListener("click", async e => {
+      e.preventDefault();
+      pill.textContent = "setting you up…";
+      try {
+        const r = await fetch(CFG.CLOUD_API + "/trial", { method: "POST" });
+        const d = await r.json();
+        if (!r.ok || !d.api_key) throw new Error(d.error || "trial unavailable");
+        localStorage.setItem("LUMEN_KEY", d.api_key);
+        localStorage.setItem("LUMEN_API", CFG.CLOUD_API);
+        location.reload();
+      } catch (err) {
+        pill.innerHTML = '<a href="pricing.html" style="color:var(--accent);text-decoration:none">get credits →</a>';
+      }
+    });
+  });
+}
+let mode = "quick", aspect = "", size = 1024;
+
+const $ = id => document.getElementById(id);
+
+// gallery memory survives even when the backend keeps no history (cloud mode)
+const myJobs = JSON.parse(localStorage.getItem("LUMEN_JOBS") || "[]");
+function rememberJob(id, prompt) {
+  myJobs.unshift({ job_id: id, prompt });
+  localStorage.setItem("LUMEN_JOBS", JSON.stringify(myJobs.slice(0, 120)));
+}
+
+function segWire(id, attr, cb) {
+  $(id).addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    $(id).querySelectorAll("button").forEach(x => x.classList.remove("on"));
+    b.classList.add("on"); cb(b.dataset[attr]);
+  });
+}
+segWire("modeSeg", "mode", v => {
+  mode = v;
+  $("modeHint").textContent = v === "quick"
+    ? "Draft: one direct render, ~3–5 min."
+    : "Studio: plan → 4 candidates → AI judge → repair, ~15–25 min. Best quality.";
+});
+segWire("aspectChips", "a", v => aspect = v);
+segWire("sizeChips", "s", v => size = +v);
+
+async function api(path, opts = {}) {
+  opts.headers = Object.assign({}, opts.headers, KEY ? { "x-api-key": KEY } : {});
+  const r = await fetch(API + path, opts);
+  if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || r.status);
+  return r.json();
+}
+
+$("go").addEventListener("click", async () => {
+  const prompt = $("prompt").value.trim();
+  if (!prompt) { $("prompt").focus(); return; }
+  $("go").disabled = true; $("go").textContent = "Queuing…";
+  try {
+    const body = { prompt, mode, final_size: size };
+    if (aspect) body.aspect = aspect;
+    const res = await api("/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    rememberJob(res.job_id, prompt);
+    if (res.credits != null) $("creditsPill").innerHTML = `credits: <b>${res.credits}</b>`;
+    refresh();
+  } catch (e) { alert("Could not queue job: " + e.message); }
+  $("go").disabled = false; $("go").textContent = "Generate";
+});
+
+function stageLine(job) {
+  const log = job.log || [];
+  for (let i = log.length - 1; i >= 0; i--) {
+    const l = log[i].trim();
+    if (l && !l.startsWith("run dir")) return l.length > 60 ? l.slice(0, 60) + "…" : l;
+  }
+  return job.status === "queued" ? "waiting for engine…" : "starting…";
+}
+
+let known = {};
+async function refresh() {
+  let jobsList;
+  try {
+    jobsList = await api("/jobs");
+    $("dot").classList.add("ok");
+    const h = await api("/health");
+    $("statusText").textContent = h.running ? "generating" : (h.queued ? "queued: " + h.queued : "ready");
+  } catch {
+    $("dot").classList.remove("ok"); $("statusText").textContent = "engine offline";
+    return;
+  }
+  // cloud backends keep no server-side history: poll the jobs this browser submitted
+  const serverIds = new Set(jobsList.map(j => j.job_id));
+  for (const mine of myJobs) {
+    if (serverIds.has(mine.job_id) || known[mine.job_id]?.dataset.state === "done") continue;
+    try { jobsList.push(await api("/jobs/" + mine.job_id)); } catch {}
+  }
+  if (KEY) {
+    try { const c = await api("/credits"); $("creditsPill").innerHTML = `credits: <b>${c.credits}</b>`; } catch {}
+  }
+  $("empty").style.display = jobsList.length ? "none" : "block";
+  const grid = $("grid");
+  for (const job of jobsList.slice().reverse()) {
+    let card = known[job.job_id];
+    if (!card) {
+      card = document.createElement("div"); card.className = "card";
+      known[job.job_id] = card; grid.prepend(card);
+    }
+    if (job.status === "done" && card.dataset.state !== "done") {
+      card.dataset.state = "done";
+      const img = API + "/jobs/" + job.job_id + "/image";
+      card.innerHTML = `<span class="badge">${(job.opts && job.opts.mode) === "full" ? "studio" : "draft"}</span>
+        <img loading="lazy" src="${img}"><div class="cap">${job.prompt}</div>`;
+      card.onclick = () => {
+        $("lbImg").src = img; $("lbPrompt").textContent = job.prompt;
+        $("lbDownload").href = img;
+        const rep = $("lbReport");
+        if (job.report) { rep.style.display = ""; rep.href = API + "/jobs/" + job.job_id + "/report"; }
+        else rep.style.display = "none";
+        lightbox.showModal();
+      };
+    } else if (job.status === "error" && card.dataset.state !== "error") {
+      card.dataset.state = "error";
+      card.innerHTML = `<div class="working"><div style="color:var(--red);font-size:22px">✕</div>
+        <div class="stage">generation failed — try again</div></div><div class="cap">${job.prompt}</div>`;
+    } else if (job.status === "running" || job.status === "queued") {
+      card.dataset.state = job.status;
+      card.innerHTML = `<div class="working"><div class="spin"></div>
+        <div class="stage">${stageLine(job)}</div></div><div class="cap">${job.prompt}</div>`;
+    }
+  }
+}
+refresh();
+setInterval(refresh, 4000);
+</script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Claim your key — LUMEN Studio</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>◑</text></svg>">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="site.css">
+<style>
+  .claim-box { max-width: 560px; }
+  .claim-box input, .claim-box select {
+    width: 100%; background: var(--panel); color: var(--ink);
+    border: 1px solid var(--line); border-radius: 10px; padding: 13px 15px;
+    font-family: var(--mono); font-size: 13.5px; margin-bottom: 12px;
+  }
+  .claim-box input:focus, .claim-box select:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+  .claim-box label { display: block; font-size: 13px; color: var(--ink-2); margin-bottom: 6px; }
+  .keycard {
+    display: none; margin-top: 26px; background: var(--panel); border: 1px solid var(--accent);
+    border-radius: var(--radius); padding: 24px;
+  }
+  .keycard .key {
+    font-family: var(--mono); font-size: 15px; color: var(--accent);
+    background: #0a1513; border-radius: 8px; padding: 14px 16px; margin: 12px 0 16px;
+    word-break: break-all; user-select: all;
+  }
+  .err { color: #e07a6a; font-size: 14px; margin-top: 8px; min-height: 20px; }
+</style>
+</head>
+<body>
+
+<nav><div class="wrap">
+  <a class="wordmark" href="index.html">LUMEN<span>◑</span>STUDIO</a>
+  <a class="link" href="gallery.html">Gallery</a>
+  <a class="link" href="pricing.html">Pricing</a>
+  <a class="link" href="api.html">API</a>
+  <div class="spacer"></div>
+  <a class="btn" href="studio.html">Open Studio</a>
+</div></nav>
+
+<section><div class="wrap">
+  <p class="eyebrow">Thank you</p>
+  <h1>Claim your access key</h1>
+  <p class="sub">Your receipt from Gumroad contains a <b>license key</b>. Paste it below — your LUMEN key is issued instantly and saved to this browser.</p>
+
+  <div class="claim-box">
+    <label for="pack">Pack you purchased</label>
+    <select id="pack">
+      <option value="spark">Spark — 200 credits</option>
+      <option value="creator" selected>Creator — 800 credits</option>
+      <option value="pro">Pro — 2,500 credits</option>
+    </select>
+    <label for="license">Gumroad license key</label>
+    <input id="license" placeholder="XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX" spellcheck="false">
+    <button class="btn big" id="claimBtn">Claim my key</button>
+    <p class="err" id="err"></p>
+  </div>
+
+  <div class="keycard" id="keycard">
+    <h3>You're in 🎉</h3>
+    <p style="color:var(--ink-2);font-size:14px;margin:4px 0 0">This is your LUMEN key — it's saved in this browser already. Keep a copy somewhere safe; it's also recoverable any time by re-entering your Gumroad license here.</p>
+    <div class="key" id="keyText"></div>
+    <span style="font-size:14px;color:var(--ink-2)">Credits: <b id="creditsText" style="color:var(--ink)"></b></span>
+    <p style="margin:18px 0 0"><a class="btn big" href="studio.html">Start creating →</a></p>
+  </div>
+</div></section>
+
+<footer><div class="wrap">
+  <span>© 2026 LUMEN Studio</span>
+  <a href="terms.html">Terms</a>
+  <a href="privacy.html">Privacy</a>
+</div></footer>
+
+<script src="config.js"></script>
+<script>
+  const qs = new URLSearchParams(location.search);
+  if (qs.get("pack")) document.getElementById("pack").value = qs.get("pack");
+
+  document.getElementById("claimBtn").addEventListener("click", async () => {
+    const err = document.getElementById("err");
+    const license = document.getElementById("license").value.trim();
+    if (!license) { err.textContent = "Paste the license key from your Gumroad receipt."; return; }
+    const api = window.LUMEN_CONFIG.CLOUD_API;
+    if (!api) { err.textContent = "Checkout is being connected — email " + window.LUMEN_CONFIG.SUPPORT_EMAIL + " and we'll activate you by hand."; return; }
+    err.textContent = "Verifying…";
+    try {
+      const r = await fetch(api + "/claim", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pack: document.getElementById("pack").value, license_key: license }),
+      });
+      const data = await r.json();
+      if (!r.ok) { err.textContent = data.error || "Could not verify — try again."; return; }
+      err.textContent = "";
+      localStorage.setItem("LUMEN_KEY", data.api_key);
+      localStorage.setItem("LUMEN_API", api);
+      document.getElementById("keyText").textContent = data.api_key;
+      document.getElementById("creditsText").textContent = data.credits;
+      document.getElementById("keycard").style.display = "block";
+      document.getElementById("keycard").scrollIntoView({ behavior: "smooth" });
+    } catch (e) { err.textContent = "Network error — try again in a moment."; }
+  });
+</script>
+</body>
+</html>

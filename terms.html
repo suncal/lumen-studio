@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Terms of Service — LUMEN Studio</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>◑</text></svg>">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+
+<nav><div class="wrap">
+  <a class="wordmark" href="index.html">LUMEN<span>◑</span>STUDIO</a>
+  <a class="link" href="gallery.html">Gallery</a>
+  <a class="link" href="pricing.html">Pricing</a>
+  <a class="link" href="api.html">API</a>
+  <div class="spacer"></div>
+  <a class="btn" href="studio.html">Open Studio</a>
+</div></nav>
+
+<section><div class="wrap legal">
+  <p class="eyebrow">Legal</p>
+  <h1>Terms of Service</h1>
+  <p class="muted">Last updated: August 26, 2026</p>
+
+  <h3>1. The service</h3>
+  <p>LUMEN Studio ("LUMEN", "we") provides AI image generation through a web application and HTTP API. Access is purchased as prepaid credit packs. By buying credits or using the service you agree to these terms.</p>
+
+  <h3>2. Credits</h3>
+  <p>Credits are prepaid usage units: one credit per Draft image, two per Studio image. Credits do not expire and are not transferable between keys. Failed generations caused by our systems are not charged, or are re-credited on request. Credits are refundable in full for 14 days after purchase if unused; partially used packs are refunded pro-rata at our discretion.</p>
+
+  <h3>3. Your content</h3>
+  <p>You own the images you generate, and we grant you all rights we hold in them, including commercial use. You are responsible for the prompts you submit and for how you use the output — including making sure your use doesn't infringe the rights of others (for example trademarks, or a real person's likeness).</p>
+
+  <h3>4. Acceptable use</h3>
+  <p>You may not use LUMEN to create content that is illegal; that sexualizes minors in any way; that is intended to harass, defame, or deceive (including undisclosed deepfakes of real people); or to spam or abuse the service. Safety filters are enforced at the engine level. We may suspend keys used in violation of this section.</p>
+
+  <h3>5. Service quality</h3>
+  <p>Generative models are probabilistic: we don't guarantee any particular output, and results for the same prompt vary. The service is provided "as is" without warranties; our total liability is capped at the amount you paid us in the preceding 12 months.</p>
+
+  <h3>6. Changes</h3>
+  <p>We may update pricing, models, and these terms; material changes will be posted on this page. Continued use after changes means acceptance.</p>
+
+  <h3>7. Contact</h3>
+  <p>Questions and refund requests: <span id="mail"></span>.</p>
+</div></section>
+
+<footer><div class="wrap">
+  <span>© 2026 LUMEN Studio</span>
+  <a href="terms.html">Terms</a>
+  <a href="privacy.html">Privacy</a>
+</div></footer>
+
+<script src="config.js"></script>
+<script>
+  const m = window.LUMEN_CONFIG.SUPPORT_EMAIL;
+  document.getElementById("mail").innerHTML = `<a href="mailto:${m}" style="color:var(--accent)">${m}</a>`;
+</script>
+</body>
+</html>
